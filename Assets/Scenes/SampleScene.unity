@@ -528,6 +528,22 @@ PrefabInstance:
       propertyPath: health
       value: 100
       objectReference: {fileID: 0}
+    - target: {fileID: 4023435746487677432, guid: ad72467978566f5438b96ca99c505c2d, type: 3}
+      propertyPath: dashSpeed
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4023435746487677432, guid: ad72467978566f5438b96ca99c505c2d, type: 3}
+      propertyPath: dashCooldown
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4023435746487677432, guid: ad72467978566f5438b96ca99c505c2d, type: 3}
+      propertyPath: dashDistance
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 4023435746487677432, guid: ad72467978566f5438b96ca99c505c2d, type: 3}
+      propertyPath: dashDuration
+      value: 0.5
+      objectReference: {fileID: 0}
     - target: {fileID: 5552338209377196737, guid: ad72467978566f5438b96ca99c505c2d, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
