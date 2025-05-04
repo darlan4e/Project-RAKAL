@@ -142,10 +142,15 @@ public class Player : MonoBehaviour
         // Проверяем, есть ли ввод (более точная проверка чем сравнение velocity)
         bool isMoving = moveInput.sqrMagnitude > 0.01f;
         _animator.SetBool(Animator.StringToHash("Walk"), isMoving);
-        
-        Vector2 dashInput = _inputActions.Player.Dash.ReadValue<Vector2>();
+
+        // Устанавливаем анимацию рывка
         _animator.SetBool(Animator.StringToHash("Dash"), _isDashing);
-    
+
+        // Если есть горизонтальное движение, поворачиваем спрайт
+        if (Mathf.Abs(moveInput.x) > 0.01f)
+        {
+            transform.localScale = new Vector3(moveInput.x > 0 ? 1 : -1, 1, 1);
+        }
     }
 
     void LocalScaleRotate()
