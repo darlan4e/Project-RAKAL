@@ -5,21 +5,27 @@ using UnityEngine.InputSystem;
 
 public class Player : MonoBehaviour
 {
+    [Header("Movement")]
     public float speed;
     public float dashSpeed;
     public float dashDistance;
     public float dashDuration;
     public float dashCooldown;
+    
+    [Header("Stats")]
+    public float health;
+    
     private Rigidbody2D _rigidbody2D;
     private Animator _animator;
     private GameObject _cursor;
-    public float health;
     private InputManager _inputActions;
     private bool _isDashing = false;
     private bool _canDash = true;
     private Vector2 _dashDirection;
     private Vector2 _dashStartPosition;
     private float _dashProgress = 0f;
+
+    private bool _isDead;
 
     private void Awake()
     {
@@ -33,16 +39,39 @@ public class Player : MonoBehaviour
     void Start()
     {
         Debug.Log(" ");
+        
+        if (!CompareTag("Player"))
+        {
+            tag = "Player";
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
-        Health();
-        Move();
-        Dash();
-        Animation();
-        LocalScaleRotate();
+        if (!_isDead)
+        {
+           Health();
+           Move();
+           //Dash();
+           Animation();
+           LocalScaleRotate();
+           if (health <= 0)
+           {
+               Dead();
+           } 
+        }
+    }
+
+    void Dead()
+    {
+        _isDead = true;
+        
+    }
+
+    public void TakeDamage(float damage)
+    {
+        
     }
 
     private void Dash()
@@ -141,27 +170,39 @@ public class Player : MonoBehaviour
         Vector2 moveInput = _inputActions.Player.Movement.ReadValue<Vector2>();
         // Проверяем, есть ли ввод (более точная проверка чем сравнение velocity)
         bool isMoving = moveInput.sqrMagnitude > 0.01f;
-        _animator.SetBool(Animator.StringToHash("Walk"), isMoving);
-
+        
+        // Устанавливаем анимацию ходьбы только если не в состоянии рывка
+        _animator.SetBool(Animator.StringToHash("Walk"), isMoving && !_isDashing);
+        
         // Устанавливаем анимацию рывка
         _animator.SetBool(Animator.StringToHash("Dash"), _isDashing);
-
-        // Если есть горизонтальное движение, поворачиваем спрайт
-        if (Mathf.Abs(moveInput.x) > 0.01f)
-        {
-            transform.localScale = new Vector3(moveInput.x > 0 ? 1 : -1, 1, 1);
-        }
     }
 
     void LocalScaleRotate()
     {
-        if(_cursor.transform.position.x > transform.position.x)
+        if (_isDashing)
         {
-            transform.localScale = new Vector3(1, 1, 1);
+            // During dash, use movement direction
+            if (_dashDirection.x > 0)
+            {
+                transform.localScale = new Vector3(1, 1, 1);
+            }
+            else
+            {
+                transform.localScale = new Vector3(-1, 1, 1);
+            }
         }
         else
         {
-            transform.localScale = new Vector3(-1, 1, 1);
+            // Normal movement uses cursor direction
+            if(_cursor.transform.position.x > transform.position.x)
+            {
+                transform.localScale = new Vector3(1, 1, 1);
+            }
+            else
+            {
+                transform.localScale = new Vector3(-1, 1, 1);
+            }
         }
     }
 }

@@ -6,24 +6,39 @@ using Random = UnityEngine.Random;
 
 public class RoomManager : MonoBehaviour
 {
+   [Header("Room generation options")]
    [SerializeField] GameObject roomPrefab;
    [SerializeField] private int maxRooms = 12;
    [SerializeField] private int minRooms = 6;
    
-   int roomWidth = 20;
-   int roomHeight = 12;
+   [Header("Room size")]
+   public int roomWidth = 18;
+   public int roomHeight = 10;
    
    int gridSizeX = 10;
    int gridSizeY = 10;
    
    private List<GameObject> roomObjects = new List<GameObject>();
-   
    private Queue<Vector2Int> roomQueue = new Queue<Vector2Int>();
-
    private int[,] roomGrid;
    private int roomCount;
-
    private bool generationComplete = false;
+   
+   public static RoomManager Instance { get; private set; } // Синглтон
+   public Room CurrentRoom { get; private set; }
+   
+   [Header("Other settings")]
+   [SerializeField] private GameObject player;
+   // Параметры для правильного позиционирования игрока
+   [SerializeField] private float doorOffset = 1.0f; // Расстояние от двери до позиции игрока
+   [SerializeField] private float playerRadius = 0.5f; // Примерный размер игрока для избежания застревания
+   
+   private bool isTransitioning = false;
+   
+   private void Awake()
+   {
+      Instance = this;
+   }
 
    private void Start()
    {
@@ -58,6 +73,46 @@ public class RoomManager : MonoBehaviour
          generationComplete = true;
       }
    }
+   
+   public void TransitionToRoom(Room targetRoom, Vector2 exitPosition)
+   {
+      // Предотвращаем множественные переходы
+      if (isTransitioning || RoomTransitionFade.Instance == null) return;
+      
+      isTransitioning = true;
+      
+      // Запускаем переход с эффектом затемнения
+      RoomTransitionFade.Instance.FadeTransition(() => {
+         // Этот код выполнится в момент полного затемнения
+         PerformRoomTransition(targetRoom, exitPosition);
+      });
+      
+      // Сбрасываем флаг перехода после завершения эффекта
+      StartCoroutine(ResetTransitionFlag());
+   }
+   
+   private IEnumerator ResetTransitionFlag()
+   {
+      // Ждем, пока затемнение полностью завершится
+      yield return new WaitWhile(() => RoomTransitionFade.Instance.IsTransitioning);
+      isTransitioning = false;
+   }
+   
+   private void PerformRoomTransition(Room targetRoom, Vector2 exitPosition)
+   {
+      // Теперь комнаты не отключаются, они остаются активными
+      // Просто меняем текущую комнату
+      CurrentRoom = targetRoom;
+      
+      // Перемещаем игрока
+      player.transform.position = exitPosition;
+      
+      // Центрируем камеру на новой комнате
+      Camera.main.transform.position = new Vector3(
+         targetRoom.transform.position.x,
+         targetRoom.transform.position.y,
+         Camera.main.transform.position.z);
+   }
 
    private void StartRoomGenerationFromRoom(Vector2Int roomIndex)
    {
@@ -70,6 +125,10 @@ public class RoomManager : MonoBehaviour
       initialRoom.name = $"Room - {roomCount}";
       initialRoom.GetComponent<Room>().RoomIndex = roomIndex;
       roomObjects.Add(initialRoom);
+
+      // Инициализируем текущую комнату
+      CurrentRoom = initialRoom.GetComponent<Room>();
+      player.transform.position = GetPositionFromGridIndex(roomIndex); // Ставим игрока в начальную комнату
    }
 
    private bool TryGenerateRoom(Vector2Int roomIndex)
@@ -113,44 +172,88 @@ public class RoomManager : MonoBehaviour
       StartRoomGenerationFromRoom(initialRoomIntex);
    }
 
-   void OpenDoors(GameObject room, int x, int y)
-   {
-      Room newRoomScript = room.GetComponent<Room>();
+void OpenDoors(GameObject room, int x, int y)
+{
+    Room newRoomScript = room.GetComponent<Room>();
 
-      Room leftRoomScript = GetRoomScriptAt(new Vector2Int(x - 1, y));
-      Room rightRoomScript = GetRoomScriptAt(new Vector2Int(x + 1, y));
-      Room topRoomScript = GetRoomScriptAt(new Vector2Int(x, y + 1));
-      Room bottomRoomScript = GetRoomScriptAt(new Vector2Int(x, y - 1));
+    Room leftRoomScript = GetRoomScriptAt(new Vector2Int(x - 1, y));
+    Room rightRoomScript = GetRoomScriptAt(new Vector2Int(x + 1, y));
+    Room topRoomScript = GetRoomScriptAt(new Vector2Int(x, y + 1));
+    Room bottomRoomScript = GetRoomScriptAt(new Vector2Int(x, y - 1));
 
-      if (x > 0 && roomGrid[x - 1, y] != 0)
-      {
-         //Neigbouring room to the left
-         newRoomScript.OpenDoor(Vector2Int.left);
-         leftRoomScript.OpenDoor(Vector2Int.right);
-      }
+    // Подключение левой двери
+    if (x > 0 && roomGrid[x - 1, y] != 0)
+    {
+        newRoomScript.OpenDoor(Vector2Int.left);
+        leftRoomScript.OpenDoor(Vector2Int.right);
+        newRoomScript.connectedRooms[Vector2Int.left] = leftRoomScript;
+        leftRoomScript.connectedRooms[Vector2Int.right] = newRoomScript;
 
-      if (x < gridSizeX - 1 && roomGrid[x + 1, y] != 0)
-      {
-         //Neigbouring room to the right
-         newRoomScript.OpenDoor(Vector2Int.right);
-         rightRoomScript.OpenDoor(Vector2Int.left);
-      }
+        // Используем центр комнаты и половину ширины комнаты
+        Vector3 leftRoomCenter = leftRoomScript.transform.position;
+        Vector3 newRoomCenter = newRoomScript.transform.position;
+        
+        Vector3 exitPosToLeft = leftRoomCenter + new Vector3(roomWidth/2 - doorOffset - playerRadius, 0, 0);
+        newRoomScript.SetExitPosition(Vector2Int.left, exitPosToLeft);
 
-      if (y > 0 && roomGrid[x, y - 1] != 0)
-      {
-         //Neigbouring room below
-         newRoomScript.OpenDoor(Vector2Int.down);
-         bottomRoomScript.OpenDoor(Vector2Int.up);
-      }
+        Vector3 exitPosToRight = newRoomCenter + new Vector3(-roomWidth/2 + doorOffset + playerRadius, 0, 0);
+        leftRoomScript.SetExitPosition(Vector2Int.right, exitPosToRight);
+    }
 
-      if (y < gridSizeY - 1 && roomGrid[x, y + 1] != 0)
-      {
-         //Neigbouring room adove
-         newRoomScript.OpenDoor(Vector2Int.up);
-         topRoomScript.OpenDoor(Vector2Int.down);
-      }
-      
-   }
+    // Подключение правой двери
+    if (x < gridSizeX - 1 && roomGrid[x + 1, y] != 0)
+    {
+        newRoomScript.OpenDoor(Vector2Int.right);
+        rightRoomScript.OpenDoor(Vector2Int.left);
+        newRoomScript.connectedRooms[Vector2Int.right] = rightRoomScript;
+        rightRoomScript.connectedRooms[Vector2Int.left] = newRoomScript;
+
+        Vector3 rightRoomCenter = rightRoomScript.transform.position;
+        Vector3 newRoomCenter = newRoomScript.transform.position;
+        
+        Vector3 exitPosToRight = rightRoomCenter + new Vector3(-roomWidth/2 + doorOffset + playerRadius, 0, 0);
+        newRoomScript.SetExitPosition(Vector2Int.right, exitPosToRight);
+
+        Vector3 exitPosToLeft = newRoomCenter + new Vector3(roomWidth/2 - doorOffset - playerRadius, 0, 0);
+        rightRoomScript.SetExitPosition(Vector2Int.left, exitPosToLeft);
+    }
+
+    // Подключение нижней двери
+    if (y > 0 && roomGrid[x, y - 1] != 0)
+    {
+        newRoomScript.OpenDoor(Vector2Int.down);
+        bottomRoomScript.OpenDoor(Vector2Int.up);
+        newRoomScript.connectedRooms[Vector2Int.down] = bottomRoomScript;
+        bottomRoomScript.connectedRooms[Vector2Int.up] = newRoomScript;
+
+        Vector3 bottomRoomCenter = bottomRoomScript.transform.position;
+        Vector3 newRoomCenter = newRoomScript.transform.position;
+        
+        Vector3 exitPosToBottom = bottomRoomCenter + new Vector3(0, roomHeight/2 - doorOffset - playerRadius, 0);
+        newRoomScript.SetExitPosition(Vector2Int.down, exitPosToBottom);
+
+        Vector3 exitPosToTop = newRoomCenter + new Vector3(0, -roomHeight/2 + doorOffset + playerRadius, 0);
+        bottomRoomScript.SetExitPosition(Vector2Int.up, exitPosToTop);
+    }
+
+    // Подключение верхней двери
+    if (y < gridSizeY - 1 && roomGrid[x, y + 1] != 0)
+    {
+        newRoomScript.OpenDoor(Vector2Int.up);
+        topRoomScript.OpenDoor(Vector2Int.down);
+        newRoomScript.connectedRooms[Vector2Int.up] = topRoomScript;
+        topRoomScript.connectedRooms[Vector2Int.down] = newRoomScript;
+
+        Vector3 topRoomCenter = topRoomScript.transform.position;
+        Vector3 newRoomCenter = newRoomScript.transform.position;
+        
+        Vector3 exitPosToTop = topRoomCenter + new Vector3(0, -roomHeight/2 + doorOffset + playerRadius, 0);
+        newRoomScript.SetExitPosition(Vector2Int.up, exitPosToTop);
+
+        Vector3 exitPosToBottom = newRoomCenter + new Vector3(0, roomHeight/2 - doorOffset - playerRadius, 0);
+        topRoomScript.SetExitPosition(Vector2Int.down, exitPosToBottom);
+    }
+}
 
    Room GetRoomScriptAt(Vector2Int index)
    {

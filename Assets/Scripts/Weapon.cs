@@ -33,6 +33,7 @@ public class Weapon : MonoBehaviour
                 GameObject bullet = Instantiate(prefabBullet, _posSpawnBullet.transform.position, Quaternion.identity);
                 bullet.GetComponent<Rigidbody2D>().velocity = 
                     (_cursor.transform.position - transform.position).normalized * bulletForce;
+                bullet.GetComponent<Bullet>().SetDamage(damage);
                 _timeFireRate = fireRate;
             }
         }
