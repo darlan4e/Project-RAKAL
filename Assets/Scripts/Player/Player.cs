@@ -25,7 +25,7 @@ public class Player : MonoBehaviour
     private Vector2 _dashStartPosition;
     private float _dashProgress = 0f;
 
-    private bool _isDead;
+    
 
     private void Awake()
     {
@@ -45,8 +45,8 @@ public class Player : MonoBehaviour
             tag = "Player";
         }
     }
-
-    // Update is called once per frame
+    
+    private bool _isDead;
     void Update()
     {
         if (!_isDead)
@@ -62,18 +62,15 @@ public class Player : MonoBehaviour
            } 
         }
     }
-
+   
     void Dead()
     {
         _isDead = true;
-        
+        _animator.SetBool(Animator.StringToHash("Death"), true);
+        print("ггвп");
     }
 
-    public void TakeDamage(float damage)
-    {
-        
-    }
-
+    public void TakeDamage(float damageVal) => health -= damageVal;
     private void Dash()
     {
         if (_inputActions.Player.Dash.triggered)

@@ -6,6 +6,7 @@ using UnityEngine;
 public class Bullet : MonoBehaviour
 {
   private int _damage;
+  
   public void SetDamage(int damage) => _damage = damage;
   
   private IEnumerator Start()
@@ -18,10 +19,10 @@ public class Bullet : MonoBehaviour
   {
     if (other.tag == "Enemy")
     {
-      // other.GetComponent<Enemy>().TakeDamage(_damage);
+      other.GetComponent<EnemySkeleton>().TakeDamage(_damage);
       Destroy(gameObject);
     }
-      
-      
+    if (other.tag == "Wall")
+      Destroy(gameObject);
   }
 }

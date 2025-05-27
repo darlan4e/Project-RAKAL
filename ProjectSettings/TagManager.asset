@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Cursor
   - Enemy
+  - Wall
   layers:
   - Default
   - TransparentFX

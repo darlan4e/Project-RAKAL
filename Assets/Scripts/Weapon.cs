@@ -39,7 +39,7 @@ public class Weapon : MonoBehaviour
         }
         else
         {
-            _timeFireRate-=Time.deltaTime;
+            _timeFireRate -= Time.deltaTime;
         }
     }
 }

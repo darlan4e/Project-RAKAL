@@ -301,9 +301,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   prefabBullet: {fileID: 5850158374206683362, guid: 13eb71681452c55458da229c2c876fcb, type: 3}
-  damage: 10
-  bulletForce: 5
-  fireRate: 0.1
+  damage: 100
+  bulletForce: 10
+  fireRate: 1
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -490,7 +490,7 @@ MonoBehaviour:
   roomWidth: 24
   roomHeight: 14
   player: {fileID: 666281942}
-  doorOffset: 1.85
+  doorOffset: 2.5
   playerRadius: 0.5
 --- !u!4 &595692441
 Transform:
@@ -646,6 +646,7 @@ GameObject:
   - component: {fileID: 1652463067}
   - component: {fileID: 1652463066}
   - component: {fileID: 1652463068}
+  - component: {fileID: 1652463069}
   m_Layer: 0
   m_Name: enemySkeleton
   m_TagString: Enemy
@@ -770,7 +771,7 @@ BoxCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: -0.17523956, y: -0.6357438}
@@ -825,9 +826,54 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 29d382236b598fa4388a63f8188e47ba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 0
-  health: 0
-  damage: 0
+  speed: 2
+  health: 100
+  damage: 1
+--- !u!61 &1652463069
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1652463062}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: -0.16, y: -0.34}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 2, y: 2}
+    newSize: {x: 2, y: 2}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 1.5, y: 1.41}
+  m_EdgeRadius: 0
 --- !u!1 &1760168203
 GameObject:
   m_ObjectHideFlags: 0
@@ -901,7 +947,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4023435746487677432, guid: ad72467978566f5438b96ca99c505c2d, type: 3}
       propertyPath: health
-      value: 100
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 4023435746487677432, guid: ad72467978566f5438b96ca99c505c2d, type: 3}
       propertyPath: dashSpeed

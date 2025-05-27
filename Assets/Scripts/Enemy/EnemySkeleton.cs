@@ -16,28 +16,23 @@ public class EnemySkeleton : MonoBehaviour
     private Animator _animator;
     private BoxCollider2D _boxCollider2D;
 
-    private bool _isDead;
-
     private void Awake()
     {
         _player = GameObject.FindWithTag("Player");
         _animator = GetComponent<Animator>();
         _boxCollider2D = GetComponent<BoxCollider2D>();
     }
-
-    void Start()
-    {
-
-    }
-
+    
+    private bool _isDead;
+    
     void Update()
     {
         if (!_isDead)
         {
             if (health <= 0)
-                if (_isDead)
                     StartCoroutine(Dead());
             Move();
+            LocalScaleRotate();
         }
     }
 
@@ -45,14 +40,16 @@ public class EnemySkeleton : MonoBehaviour
     {
         transform.position =
             Vector2.MoveTowards(transform.position, _player.transform.position, speed * Time.deltaTime);
+        _animator.SetBool(Animator.StringToHash("Walk"), true);
     }
-
+    
+    public void TakeDamage(float damageVal) => health -= damageVal;
+    
     IEnumerator Dead()
     {
         _isDead = true;
         _boxCollider2D.enabled = false;
-        transform.GetChild(0).gameObject.SetActive(false);
-        _animator.SetBool(Animator.StringToHash("Death"), true);
+        _animator.SetBool(Animator.StringToHash("Dead"), true);
         yield return new WaitForSeconds(2f);
         Destroy(gameObject);
     }
@@ -64,5 +61,17 @@ public class EnemySkeleton : MonoBehaviour
             other.GetComponent<Player>().TakeDamage(damage);
         }
     }
+    void LocalScaleRotate()
+    {
+        if (_player.transform.position.x > transform.position.x)
+        {
+            transform.localScale = new Vector3(1, 1, 1);
+        }
+        else
+        {
+            transform.localScale = new Vector3(-1, 1, 1);
+        }
+    }
+    
 
 }
