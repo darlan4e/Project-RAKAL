@@ -17,7 +17,10 @@ public class Bullet : MonoBehaviour
 
   private void OnTriggerEnter2D(Collider2D other)
   {
-    if (other.tag == "Enemy")
+    // Пропускаем триггер-коллайдеры
+    if (other.isTrigger) return;
+    
+    if (other.CompareTag("Enemy"))
     {
       other.GetComponent<EnemySkeleton>().TakeDamage(_damage);
       Destroy(gameObject);

@@ -7,7 +7,8 @@ using Random = UnityEngine.Random;
 public class RoomManager : MonoBehaviour
 {
    [Header("Room generation options")]
-   [SerializeField] GameObject roomPrefab;
+   //[SerializeField] GameObject roomPrefab;
+   [SerializeField] private List<GameObject> roomPrefabs;
    [SerializeField] private int maxRooms = 12;
    [SerializeField] private int minRooms = 6;
    
@@ -121,7 +122,8 @@ public class RoomManager : MonoBehaviour
       int y = roomIndex.y;
       roomGrid[x, y] = 1;
       roomCount++;
-      var initialRoom = Instantiate(roomPrefab, GetPositionFromGridIndex(roomIndex), Quaternion.identity);
+      GameObject selectedPrefab = roomPrefabs[Random.Range(0, roomPrefabs.Count)];
+      var initialRoom = Instantiate(selectedPrefab, GetPositionFromGridIndex(roomIndex), Quaternion.identity);
       initialRoom.name = $"Room - {roomCount}";
       initialRoom.GetComponent<Room>().RoomIndex = roomIndex;
       roomObjects.Add(initialRoom);
@@ -149,7 +151,8 @@ public class RoomManager : MonoBehaviour
       roomGrid[x, y] = 1;
       roomCount++;
       
-      var newRoom = Instantiate(roomPrefab, GetPositionFromGridIndex(roomIndex), Quaternion.identity);
+      GameObject selectedPrefab = roomPrefabs[Random.Range(0, roomPrefabs.Count)];
+      var newRoom = Instantiate(selectedPrefab, GetPositionFromGridIndex(roomIndex), Quaternion.identity);
       newRoom.GetComponent<Room>().RoomIndex = roomIndex;
       newRoom.name = $"Room-{roomCount}";
       roomObjects.Add(newRoom);

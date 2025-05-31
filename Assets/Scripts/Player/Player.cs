@@ -14,6 +14,8 @@ public class Player : MonoBehaviour
     
     [Header("Stats")]
     public float health;
+    public float MaxHealth;
+    public float InvincibilityTime;
     
     private Rigidbody2D _rigidbody2D;
     private Animator _animator;
@@ -70,7 +72,23 @@ public class Player : MonoBehaviour
         print("ггвп");
     }
 
-    public void TakeDamage(float damageVal) => health -= damageVal;
+    IEnumerator Immortality()
+    {
+        yield return new WaitForSeconds(InvincibilityTime);
+        isDamage = true;
+    }
+
+    private bool isDamage = true;
+    public void TakeDamage(float damageVal)
+    {
+        if (isDamage)
+        {
+            health -= damageVal;
+            print(health);
+            StartCoroutine(Immortality());
+            isDamage = false;
+        }
+    }
     private void Dash()
     {
         if (_inputActions.Player.Dash.triggered)
@@ -174,19 +192,22 @@ public class Player : MonoBehaviour
         // Устанавливаем анимацию рывка
         _animator.SetBool(Animator.StringToHash("Dash"), _isDashing);
     }
-
+    
+    
+    float playerScale = 0.9f;
     void LocalScaleRotate()
     {
+        
         if (_isDashing)
         {
             // During dash, use movement direction
             if (_dashDirection.x > 0)
             {
-                transform.localScale = new Vector3(1, 1, 1);
+                transform.localScale = new Vector3(playerScale, playerScale, playerScale);
             }
             else
             {
-                transform.localScale = new Vector3(-1, 1, 1);
+                transform.localScale = new Vector3(-playerScale, playerScale, playerScale);
             }
         }
         else
@@ -194,11 +215,11 @@ public class Player : MonoBehaviour
             // Normal movement uses cursor direction
             if(_cursor.transform.position.x > transform.position.x)
             {
-                transform.localScale = new Vector3(1, 1, 1);
+                transform.localScale = new Vector3(playerScale, playerScale, playerScale);
             }
             else
             {
-                transform.localScale = new Vector3(-1, 1, 1);
+                transform.localScale = new Vector3(-playerScale, playerScale, playerScale);
             }
         }
     }
