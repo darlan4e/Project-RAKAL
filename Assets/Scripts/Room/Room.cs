@@ -3,10 +3,14 @@ using UnityEngine;
 
 public class Room : MonoBehaviour
 {
-    [SerializeField] public GameObject topDoor;
-    [SerializeField] public GameObject bottomDoor;
-    [SerializeField] public GameObject rightDoor;
-    [SerializeField] public GameObject leftDoor;
+    [SerializeField] public GameObject topClosedDoor;
+    [SerializeField] public GameObject bottomClosedDoor;
+    [SerializeField] public GameObject rightClosedDoor;
+    [SerializeField] public GameObject leftClosedDoor;
+    [SerializeField] public GameObject topOpenDoor;
+    [SerializeField] public GameObject bottomOpenDoor;
+    [SerializeField] public GameObject rightOpenDoor;
+    [SerializeField] public GameObject leftOpenDoor;
 
     // Связанные комнаты для каждой двери
     public Dictionary<Vector2Int, Room> connectedRooms = new Dictionary<Vector2Int, Room>();
@@ -30,6 +34,9 @@ public class Room : MonoBehaviour
                 enemies.Add(child.gameObject);
             }
         }
+
+        // Изначально показываем открытые двери для подключённых комнат
+        UpdateDoorVisibility();
     }
 
     private void Update()
@@ -42,14 +49,27 @@ public class Room : MonoBehaviour
 
     public void OpenDoor(Vector2Int direction)
     {
-        if (direction == Vector2Int.up && topDoor != null)
-            topDoor.SetActive(true);
-        if (direction == Vector2Int.down && bottomDoor != null)
-            bottomDoor.SetActive(true);
-        if (direction == Vector2Int.right && rightDoor != null)
-            rightDoor.SetActive(true);
-        if (direction == Vector2Int.left && leftDoor != null)
-            leftDoor.SetActive(true);
+        // Показываем открытую дверь и скрываем закрытую
+        if (direction == Vector2Int.up)
+        {
+            if (topOpenDoor != null) topOpenDoor.SetActive(true);
+            if (topClosedDoor != null) topClosedDoor.SetActive(false);
+        }
+        if (direction == Vector2Int.down)
+        {
+            if (bottomOpenDoor != null) bottomOpenDoor.SetActive(true);
+            if (bottomClosedDoor != null) bottomClosedDoor.SetActive(false);
+        }
+        if (direction == Vector2Int.right)
+        {
+            if (rightOpenDoor != null) rightOpenDoor.SetActive(true);
+            if (rightClosedDoor != null) rightClosedDoor.SetActive(false);
+        }
+        if (direction == Vector2Int.left)
+        {
+            if (leftOpenDoor != null) leftOpenDoor.SetActive(true);
+            if (leftClosedDoor != null) leftClosedDoor.SetActive(false);
+        }
     }
 
     // Метод для настройки выхода для двери
@@ -65,10 +85,7 @@ public class Room : MonoBehaviour
         if (enemies.Count > 0)
         {
             doorsLocked = true;
-            if (topDoor != null) topDoor.SetActive(false);
-            if (bottomDoor != null) bottomDoor.SetActive(false);
-            if (rightDoor != null) rightDoor.SetActive(false);
-            if (leftDoor != null) leftDoor.SetActive(false);
+            UpdateDoorVisibility();
         }
     }
 
@@ -76,9 +93,38 @@ public class Room : MonoBehaviour
     public void UnlockDoors()
     {
         doorsLocked = false;
+        UpdateDoorVisibility();
+    }
+
+    // Обновление видимости дверей в зависимости от состояния
+    private void UpdateDoorVisibility()
+    {
+        // Сбрасываем все двери
+        if (topOpenDoor != null) topOpenDoor.SetActive(false);
+        if (bottomOpenDoor != null) bottomOpenDoor.SetActive(false);
+        if (rightOpenDoor != null) rightOpenDoor.SetActive(false);
+        if (leftOpenDoor != null) leftOpenDoor.SetActive(false);
+        if (topClosedDoor != null) topClosedDoor.SetActive(false);
+        if (bottomClosedDoor != null) bottomClosedDoor.SetActive(false);
+        if (rightClosedDoor != null) rightClosedDoor.SetActive(false);
+        if (leftClosedDoor != null) leftClosedDoor.SetActive(false);
+
+        // Показываем нужные двери
         foreach (var pair in connectedRooms)
         {
-            OpenDoor(pair.Key);
+            if (doorsLocked)
+            {
+                // Показываем закрытые двери
+                if (pair.Key == Vector2Int.up && topClosedDoor != null) topClosedDoor.SetActive(true);
+                if (pair.Key == Vector2Int.down && bottomClosedDoor != null) bottomClosedDoor.SetActive(true);
+                if (pair.Key == Vector2Int.right && rightClosedDoor != null) rightClosedDoor.SetActive(true);
+                if (pair.Key == Vector2Int.left && leftClosedDoor != null) leftClosedDoor.SetActive(true);
+            }
+            else
+            {
+                // Показываем открытые двери
+                OpenDoor(pair.Key);
+            }
         }
     }
 
@@ -95,7 +141,7 @@ public class Room : MonoBehaviour
         }
     }
 
-    // Проверка, является ли комната начальной (опционально)
+    // Проверка, является ли комната начальной
     public bool IsInitialRoom()
     {
         return RoomIndex == new Vector2Int(5, 5); // Начальная комната в центре сетки (gridSizeX/2, gridSizeY/2)

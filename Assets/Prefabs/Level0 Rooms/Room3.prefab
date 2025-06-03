@@ -512,10 +512,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4d400b0fbb0cfab459502007fe84784c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  topDoor: {fileID: 1316943643634165495}
-  bottomDoor: {fileID: 1145676040671298954}
-  rightDoor: {fileID: 5830651446097818936}
-  leftDoor: {fileID: 9093639827182310339}
+  topClosedDoor: {fileID: 8622973122632922443}
+  bottomClosedDoor: {fileID: 856865125508330279}
+  rightClosedDoor: {fileID: 7768745371196268128}
+  leftClosedDoor: {fileID: 3478505495088795094}
+  topOpenDoor: {fileID: 1316943643634165495}
+  bottomOpenDoor: {fileID: 1145676040671298954}
+  rightOpenDoor: {fileID: 5830651446097818936}
+  leftOpenDoor: {fileID: 9093639827182310339}
 --- !u!1 &780002039182574075
 GameObject:
   m_ObjectHideFlags: 0

@@ -10,7 +10,7 @@ public class RoomManager : MonoBehaviour
     [SerializeField] private GameObject initialRoomPrefab; // Префаб для начальной комнаты (например, Room0)
     [SerializeField] private List<GameObject> roomPrefabs; // Список обычных комнат (Room0, Room1)
     [SerializeField] private GameObject bossRoomPrefab; // Префаб для комнаты с боссом
-    [SerializeField] private int maxRooms = 12;
+    [SerializeField] private int maxRooms = 8;
     [SerializeField] private int minRooms = 6;
 
     [Header("Room size")]
@@ -45,6 +45,11 @@ public class RoomManager : MonoBehaviour
 
     private void Start()
     {
+        if (initialRoomPrefab == null)
+        {
+            Debug.LogError("Initial Room Prefab не задан в инспекторе!");
+            return;
+        }
         roomGrid = new int[gridSizeX, gridSizeY];
         roomQueue = new Queue<Vector2Int>();
 
@@ -183,14 +188,14 @@ public class RoomManager : MonoBehaviour
 
             // Создаём комнату с боссом на том же месте
             var bossRoom = Instantiate(bossRoomPrefab, GetPositionFromGridIndex(bossRoomIndex), Quaternion.identity);
-            bossRoom.name = $"BossRoom";
+            bossRoom.name = $"Room-Boss";
             bossRoom.GetComponent<Room>().RoomIndex = bossRoomIndex;
             roomObjects.Add(bossRoom);
 
             // Открываем двери для комнаты с боссом
             OpenDoors(bossRoom, bossRoomIndex.x, bossRoomIndex.y);
 
-            Debug.Log($"Boss Room generated on {bossRoomIndex}");
+            Debug.Log($"Комната с боссом размещена на индексе сетки {bossRoomIndex}");
         }
         else
         {
@@ -279,7 +284,7 @@ public class RoomManager : MonoBehaviour
         {
             newRoomScript.OpenDoor(Vector2Int.up);
             topRoomScript.OpenDoor(Vector2Int.down);
-            newRoomScript.connectedRooms[Vector2Int.up] = newRoomScript;
+            newRoomScript.connectedRooms[Vector2Int.up] = topRoomScript;
             topRoomScript.connectedRooms[Vector2Int.down] = newRoomScript;
 
             Vector3 topRoomCenter = topRoomScript.transform.position;

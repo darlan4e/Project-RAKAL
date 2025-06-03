@@ -479,10 +479,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4d400b0fbb0cfab459502007fe84784c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  topDoor: {fileID: 8679187493434835492}
-  bottomDoor: {fileID: 6936043179046282808}
-  rightDoor: {fileID: 7682036466749765895}
-  leftDoor: {fileID: 6849790969456882584}
+  topClosedDoor: {fileID: 8622973122632922443}
+  bottomClosedDoor: {fileID: 856865125508330279}
+  rightClosedDoor: {fileID: 7768745371196268128}
+  leftClosedDoor: {fileID: 3478505495088795094}
+  topOpenDoor: {fileID: 8679187493434835492}
+  bottomOpenDoor: {fileID: 6936043179046282808}
+  rightOpenDoor: {fileID: 7682036466749765895}
+  leftOpenDoor: {fileID: 6849790969456882584}
 --- !u!1 &780002039182574075
 GameObject:
   m_ObjectHideFlags: 0
@@ -4355,10 +4359,10 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 725222711443403596}
-  - {fileID: 2052390987138887102}
   - {fileID: 5038214162120096893}
   - {fileID: 8142985399778846347}
+  - {fileID: 725222711443403596}
+  - {fileID: 2052390987138887102}
   - {fileID: 1759197718542828254}
   - {fileID: 790995111728428145}
   - {fileID: 1976201348121041549}
