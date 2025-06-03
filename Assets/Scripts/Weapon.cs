@@ -35,6 +35,8 @@ public class Weapon : MonoBehaviour
                     (_cursor.transform.position - transform.position).normalized * bulletForce;
                 bullet.GetComponent<Bullet>().SetDamage(damage);
                 _timeFireRate = fireRate;
+                if (SoundManager.Instance != null)
+                    SoundManager.Instance.PlayBowShot();
             }
         }
         else

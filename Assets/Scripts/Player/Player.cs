@@ -7,6 +7,7 @@ public class Player : MonoBehaviour
 {
     [Header("Movement")]
     public float speed;
+    
     public float dashSpeed;
     public float dashDistance;
     public float dashDuration;
@@ -16,6 +17,16 @@ public class Player : MonoBehaviour
     public float health;
     public float MaxHealth;
     public float InvincibilityTime;
+    //private bool isTakingDamage;
+    //private float _takingDamageDuration = 0.5f; 
+    
+    [Header("Damage Effect")]
+    [SerializeField] private Color _damageColor = new Color(255, 0, 0, 0.5f);
+    [SerializeField] private float _flashDuration = 0.2f;
+    
+    private SpriteRenderer _spriteRenderer;
+    private Color _originalColor;
+    private bool _isFlashing = false;
     
     private Rigidbody2D _rigidbody2D;
     private Animator _animator;
@@ -31,6 +42,8 @@ public class Player : MonoBehaviour
 
     private void Awake()
     {
+        _spriteRenderer = GetComponent<SpriteRenderer>();
+        _originalColor = _spriteRenderer.color; // Сохраняем исходный цвет
         _rigidbody2D = GetComponent<Rigidbody2D>();
         _inputActions = new InputManager();
         _animator = GetComponent<Animator>();
@@ -87,7 +100,25 @@ public class Player : MonoBehaviour
             print(health);
             StartCoroutine(Immortality());
             isDamage = false;
+            
+            if (!_isFlashing)
+                StartCoroutine(FlashDamage());
         }
+    }
+    private IEnumerator FlashDamage()
+    {
+        _isFlashing = true;
+        
+        // Меняем цвет на красный
+        _spriteRenderer.color = _damageColor;
+        
+        // Ждем _flashDuration секунд
+        yield return new WaitForSeconds(_flashDuration);
+        
+        // Возвращаем исходный цвет
+        _spriteRenderer.color = _originalColor;
+        
+        _isFlashing = false;
     }
     private void Dash()
     {

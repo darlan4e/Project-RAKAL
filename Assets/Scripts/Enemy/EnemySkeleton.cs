@@ -11,10 +11,20 @@ public class EnemySkeleton : MonoBehaviour
     
     [Header("Attack Settings")]
     public float damage = 10f;
-    public float attackCooldown = 2f; // Задержка между атаками
+    public float attackCooldown = 2f;
     public float attackDuration = 0.8f;
     private float _lastAttackTime;
     private bool _isAttacking;
+    private bool isTakingDamage;
+    private float _takingDamageDuration = 0.5f;
+    
+    [Header("Damage Effect")]
+    [SerializeField] private Color _damageColor = new Color(255, 0, 0, 0.5f);
+    [SerializeField] private float _flashDuration = 0.2f;
+    
+    private SpriteRenderer _spriteRenderer;
+    private Color _originalColor;
+    private bool _isFlashing = false;
     
     private BoxCollider2D _attackCollider;
     private CapsuleCollider2D _collision;
@@ -29,6 +39,8 @@ public class EnemySkeleton : MonoBehaviour
 
     private void Awake()
     {
+        _spriteRenderer = GetComponent<SpriteRenderer>();
+        _originalColor = _spriteRenderer.color; // Сохраняем исходный цвет
         _player = GameObject.FindWithTag("Player");
         _animator = GetComponent<Animator>();
         _attackCollider = GetComponent<BoxCollider2D>();
@@ -58,8 +70,42 @@ public class EnemySkeleton : MonoBehaviour
                     _animator.SetBool(Animator.StringToHash("Walk"), true);
         }
     }
+
+    public void TakeDamage(float damageVal)
+    {
+       health -= damageVal; 
+       
+       if (!_isFlashing)
+           StartCoroutine(FlashDamage());
+       if (SoundManager.Instance != null)
+           SoundManager.Instance.PlayEnemyHurt();
+       isTakingDamage = true;
+        _animator.SetBool(Animator.StringToHash("TakeDamage"), isTakingDamage);
+        Invoke(nameof(ResetTakingDamage), _takingDamageDuration);
+    }
+
+    private void ResetTakingDamage()
+    {
+        isTakingDamage = false;
+        _animator.SetBool(Animator.StringToHash("TakeDamage"), isTakingDamage);
+    }
+    private IEnumerator FlashDamage()
+    {
+        _isFlashing = true;
+        
+        // Меняем цвет на красный
+        _spriteRenderer.color = _damageColor;
+        
+        // Ждем _flashDuration секунд
+        yield return new WaitForSeconds(_flashDuration);
+        
+        // Возвращаем исходный цвет
+        _spriteRenderer.color = _originalColor;
+        
+        _isFlashing = false;
+    }
+
     
-    public void TakeDamage(float damageVal) => health -= damageVal;
     
     IEnumerator Dead()
     {
