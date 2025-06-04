@@ -73,7 +73,7 @@ public class RoomManager : MonoBehaviour
         else if (roomCount < minRooms)
         {
             Debug.Log($"Room count less than {minRooms} ({roomCount}). Trying again.");
-            RegenerateRooms();
+            //RegenerateRooms();
         }
         else if (!generationComplete)
         {
