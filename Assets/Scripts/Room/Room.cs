@@ -1,6 +1,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum RoomStatus
+{
+    Unexplored,   // Не исследована (серая)
+    Explored,     // Исследована (белая)
+    Current       // Текущая (жёлтая)
+}
+
 public class Room : MonoBehaviour
 {
     [SerializeField] public GameObject topClosedDoor;
@@ -24,6 +31,9 @@ public class Room : MonoBehaviour
 
     public Vector2Int RoomIndex { get; set; }
 
+    // ✅ Статус комнаты для миникарты
+    public RoomStatus Status = RoomStatus.Unexplored;
+
     private void Awake()
     {
         // Находим всех врагов в комнате (предполагается, что враги имеют тег "Enemy")
@@ -45,6 +55,19 @@ public class Room : MonoBehaviour
         {
             CheckEnemies();
         }
+    }
+
+    // ✅ Метод для установки статуса комнаты (для миникарты)
+    public void SetStatus(RoomStatus status)
+    {
+        Status = status;
+    }
+
+    // ✅ Метод для очистки связей (нужен при регенерации)
+    public void ClearConnections()
+    {
+        connectedRooms.Clear();
+        exitPositions.Clear();
     }
 
     public void OpenDoor(Vector2Int direction)

@@ -10,12 +10,12 @@ public class RoomManager : MonoBehaviour
     [SerializeField] private GameObject initialRoomPrefab; // Префаб для начальной комнаты (например, Room0)
     [SerializeField] private List<GameObject> roomPrefabs; // Список обычных комнат (Room0, Room1)
     [SerializeField] private GameObject bossRoomPrefab; // Префаб для комнаты с боссом
-    [SerializeField] private int maxRooms = 8;
-    [SerializeField] private int minRooms = 6;
+    [SerializeField] private int maxRooms;
+    [SerializeField] private int minRooms;
 
     [Header("Room size")]
-    public int roomWidth = 18;
-    public int roomHeight = 10;
+    public int roomWidth;
+    public int roomHeight;
 
     int gridSizeX = 10;
     int gridSizeY = 10;
@@ -37,6 +37,8 @@ public class RoomManager : MonoBehaviour
     [SerializeField] private float playerRadius = 0.5f; // Примерный размер игрока для избежания застревания
 
     private bool isTransitioning = false;
+
+    public System.Action OnRoomChanged; // Событие при смене комнаты
 
     private void Awake()
     {
@@ -73,7 +75,7 @@ public class RoomManager : MonoBehaviour
         else if (roomCount < minRooms)
         {
             Debug.Log($"Room count less than {minRooms} ({roomCount}). Trying again.");
-            //RegenerateRooms();
+            RegenerateRooms();
         }
         else if (!generationComplete)
         {
@@ -109,12 +111,20 @@ public class RoomManager : MonoBehaviour
 
     private void PerformRoomTransition(Room targetRoom, Vector2 exitPosition)
     {
-        // Обновляем текущую комнату
+        // Обновляем статусы комнат
+        if (CurrentRoom != null)
+        {
+            CurrentRoom.SetStatus(RoomStatus.Explored);
+        }
+
         CurrentRoom = targetRoom;
+        CurrentRoom.SetStatus(RoomStatus.Current);
+
+        // Уведомляем миникарту
+        OnRoomChanged?.Invoke();
 
         // Перемещаем игрока
         player.transform.position = exitPosition;
-
         // Центрируем камеру на новой комнате
         Camera.main.transform.position = new Vector3(
             targetRoom.transform.position.x,
@@ -135,11 +145,13 @@ public class RoomManager : MonoBehaviour
         // Используем указанный префаб начальной комнаты
         var initialRoom = Instantiate(initialRoomPrefab, GetPositionFromGridIndex(roomIndex), Quaternion.identity);
         initialRoom.name = $"Room - {roomCount} (Initial)";
-        initialRoom.GetComponent<Room>().RoomIndex = roomIndex;
+        var roomScript = initialRoom.GetComponent<Room>();
+        roomScript.RoomIndex = roomIndex;
+        roomScript.SetStatus(RoomStatus.Current); // Начальная — текущая
         roomObjects.Add(initialRoom);
 
         // Инициализируем текущую комнату
-        CurrentRoom = initialRoom.GetComponent<Room>();
+        CurrentRoom = roomScript;
         player.transform.position = GetPositionFromGridIndex(roomIndex); // Ставим игрока в начальную комнату
     }
 
@@ -151,11 +163,15 @@ public class RoomManager : MonoBehaviour
         if (roomCount >= maxRooms)
             return false;
 
-        if (Random.value < 0.5f && roomIndex != Vector2Int.zero)
+        // Возвращён 50% шанс на генерацию комнаты
+        if (Random.value < 0.5f && roomIndex != new Vector2Int(gridSizeX / 2, gridSizeY / 2))
             return false;
 
         if (CountAdjacentRooms(roomIndex) > 1)
             return false;
+
+        // Проверка, занята ли ячейка
+        if (roomGrid[x, y] != 0) return false;
 
         roomQueue.Enqueue(roomIndex);
         roomGrid[x, y] = 1;
@@ -205,13 +221,23 @@ public class RoomManager : MonoBehaviour
 
     private void RegenerateRooms()
     {
-        roomObjects.ForEach(Destroy);
+        // Очищаем все дверные связи у всех комнат
+        foreach (var room in roomObjects)
+        {
+            var roomScript = room.GetComponent<Room>();
+            roomScript.ClearConnections();
+            Destroy(room);
+        }
+
         roomObjects.Clear();
+
+        // Сбрасываем сетку и очередь
         roomGrid = new int[gridSizeX, gridSizeY];
         roomQueue.Clear();
         roomCount = 0;
         generationComplete = false;
 
+        // Перезапускаем генерацию с начальной комнатой
         Vector2Int initialRoomIndex = new Vector2Int(gridSizeX / 2, gridSizeY / 2);
         StartRoomGenerationFromRoom(initialRoomIndex);
     }
