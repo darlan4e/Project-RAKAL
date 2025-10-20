@@ -10,12 +10,12 @@ GameObject:
   m_Component:
   - component: {fileID: 4629283392066995669}
   - component: {fileID: 5574219780811605423}
+  - component: {fileID: 8315626878578936059}
   - component: {fileID: 6599022238011028233}
   - component: {fileID: 4043163879893571761}
   - component: {fileID: 8443568371759785381}
   - component: {fileID: 7067198807114276284}
   - component: {fileID: 1012698491263489408}
-  - component: {fileID: 8315626878578936059}
   m_Layer: 0
   m_Name: enemySkeleton
   m_TagString: Enemy
@@ -90,6 +90,25 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &8315626878578936059
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1914138508137125210}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29d382236b598fa4388a63f8188e47ba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  health: 20
+  speed: 2
+  damage: 1
+  attackCooldown: 1
+  attackDuration: 0.8
+  _damageColor: {r: 1, g: 0, b: 0, a: 0.2901961}
+  _flashDuration: 0.1
 --- !u!95 &6599022238011028233
 Animator:
   serializedVersion: 5
@@ -253,22 +272,3 @@ CapsuleCollider2D:
   m_Offset: {x: -0.19675827, y: -0.38908}
   m_Size: {x: 0.54159164, y: 0.9457574}
   m_Direction: 0
---- !u!114 &8315626878578936059
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1914138508137125210}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 29d382236b598fa4388a63f8188e47ba, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  health: 20
-  speed: 2
-  damage: 3
-  attackCooldown: 1
-  attackDuration: 0.8
-  _damageColor: {r: 1, g: 0, b: 0, a: 0.2901961}
-  _flashDuration: 0.1

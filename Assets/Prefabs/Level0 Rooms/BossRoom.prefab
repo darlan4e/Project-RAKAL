@@ -519,6 +519,7 @@ MonoBehaviour:
   bottomOpenDoor: {fileID: 1662458218942700940}
   rightOpenDoor: {fileID: 6314312165491295000}
   leftOpenDoor: {fileID: 1261860686711692005}
+  Status: 0
 --- !u!1 &780002039182574075
 GameObject:
   m_ObjectHideFlags: 0
@@ -6579,7 +6580,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8315626878578936059, guid: d049c1bdfb5120447a23f1fb6afec3c0, type: 3}
       propertyPath: damage
-      value: 10
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 8315626878578936059, guid: d049c1bdfb5120447a23f1fb6afec3c0, type: 3}
       propertyPath: health
